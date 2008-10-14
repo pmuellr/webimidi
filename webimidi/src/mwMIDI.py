@@ -37,13 +37,19 @@ __date__    = "2008-10-14"
 __version__ = "0.1"
 
 __all__ = [
-    "Client", "Source", "MIDIMessage", 
+    "MwMIDIException", "Client", "Source", "MIDIMessage", 
     "NoteOn", "NoteOff", "ControlChange"
 ]
 
 from ctypes import *
 from mwCoreMIDI import *
+import simplejson as json
 
+#-------------------------------------------------------------------
+class MwMIDIException(Exception):
+    """Exception type thrown by code in this module"""
+    pass
+    
 #-------------------------------------------------------------------
 class Client(object):
     """Models a client program interacting with MIDI devices.
@@ -62,7 +68,7 @@ class Client(object):
         status = MIDIClientCreate(name=self.clientNameRef, outClient=byref(self.client))
         
         if 0 != status:
-            raise Error, "error creating client: %d" % status
+            raise MwMIDIException, "error creating client: %d" % status
     
     #-------------------------------------------------------------------
     def destroy(self):
@@ -86,7 +92,7 @@ class Source(object):
         status = MIDISourceCreate(client=self.client.client, name=self.sourceNameRef, outSrc=byref(self.src))
         
         if 0 != status:
-            raise Error, "error creating source: %d" % status
+            raise MwMIDIException, "error creating source: %d" % status
         
     #-------------------------------------------------------------------
     def destroy(self):
@@ -112,6 +118,8 @@ class Source(object):
     def sendMessage(self, message):
         """Send a single MIDIMessage object to the MIDI device"""
         
+        print "sendMessage(%s)" % message.toJSON()
+        
         midiPacketList = MIDIPacketList()
         midiPacketPtr  = MIDIPacketListInit(byref(midiPacketList))
         midiPacket     = midiPacketPtr.contents
@@ -134,8 +142,23 @@ class Source(object):
 class MIDIMessage(object):
     """Models a MIDI message.
     
-    This class is not meant to be used directly, use one of it's subclasses instead.
+    This class is not meant to be instantiated directly, use one of it's subclasses instead.
     """
+
+    #-------------------------------------------------------------------
+    @staticmethod
+    def fromJSON(jsonString):
+        """return an instance of this class from it's JSON representation"""
+        jsonObject = json.loads(jsonString)
+        
+        if 1 != len(jsonObject): raise MwMIDIException, "Invalid JSON MIDI Message: %s" % jsonString
+        
+        messageType = jsonObject.keys()[0]
+        if messageType == "NoteOn":        return NoteOn._fromJSON(jsonObject[messageType])
+        if messageType == "NoteOff":       return NoteOff._fromJSON(jsonObject[messageType])
+        if messageType == "ControlChange": return ControlChange._fromJSON(jsonObject[messageType])
+        
+        raise MwMIDIException, "Invalid JSON MIDI Message: %s" % jsonString
     
     #-------------------------------------------------------------------
     def __init__(self, channel, status, databytes):
@@ -161,26 +184,103 @@ class MIDIMessage(object):
 class NoteOn(MIDIMessage):
     """Models a MIDI Note On message."""
     
+    #-------------------------------------------------------------------
+    @staticmethod
+    def _fromJSON(jsonObject):
+        """return an instance of this class from it's JSON representation"""
+        
+        if 3 != len(jsonObject): "Invalid JSON MIDI Message: %s" % json.dumps(jsonString)
+        if "channel"  not in jsonObject: "Invalid JSON MIDI Message, missing 'channel': %s"  % json.dumps(jsonString)
+        if "key"      not in jsonObject: "Invalid JSON MIDI Message, missing 'key': %s"      % json.dumps(jsonString)
+        if "velocity" not in jsonObject: "Invalid JSON MIDI Message, missing 'velocity': %s" % json.dumps(jsonString)
+        
+        return NoteOn(jsonObject["channel"], jsonObject["key"], jsonObject["velocity"])
+        
+    #-------------------------------------------------------------------
     def __init__(self, channel, key, velocity):
         """Create a new instance of this class with the given channel, key, and velocity."""
         
         MIDIMessage.__init__(self, channel, 0x80, (key,velocity))
+        self.key      = key
+        self.velocity = velocity
+        
+    #-------------------------------------------------------------------
+    def toJSON(self):
+        """Return a JSON representation of this object"""
+        result = { "NoteOn" : {
+            "channel":  self.channel,
+            "key":      self.key,
+            "velocity": self.velocity,
+            }
+        }
+        return json.dumps(result)
 
 #-------------------------------------------------------------------
 class NoteOff(MIDIMessage):
     """Models a MIDI Note Off message."""
     
+    #-------------------------------------------------------------------
+    @staticmethod
+    def _fromJSON(jsonObject):
+        """return an instance of this class from it's JSON representation"""
+        
+        if 3 != len(jsonObject): "Invalid JSON MIDI Message: %s" % json.dumps(jsonString)
+        if "channel"  not in jsonObject: "Invalid JSON MIDI Message, missing 'channel': %s"  % json.dumps(jsonString)
+        if "key"      not in jsonObject: "Invalid JSON MIDI Message, missing 'key': %s"      % json.dumps(jsonString)
+        if "velocity" not in jsonObject: "Invalid JSON MIDI Message, missing 'velocity': %s" % json.dumps(jsonString)
+        
+        return NoteOff(jsonObject["channel"], jsonObject["key"], jsonObject["velocity"])
+        
+    #-------------------------------------------------------------------
     def __init__(self, channel, key, velocity):
         """Create a new instance of this class with the given channel, key, and velocity."""
-        
         MIDIMessage.__init__(self, channel, 0x90, (key,velocity))
+        self.key      = key
+        self.velocity = velocity
+
+    #-------------------------------------------------------------------
+    def toJSON(self):
+        """Return a JSON representation of this object"""
+        result = { "NoteOff" : {
+            "channel":  self.channel,
+            "key":      self.key,
+            "velocity": self.velocity,
+            }
+        }
+        return json.dumps(result)
 
 #-------------------------------------------------------------------
 class ControlChange(MIDIMessage):
     """Models a MIDI Control Change message."""
     
+    #-------------------------------------------------------------------
+    @staticmethod
+    def _fromJSON(jsonObject):
+        """return an instance of this class from it's JSON representation"""
+        
+        if 3 != len(jsonObject): "Invalid JSON MIDI Message: %s" % json.dumps(jsonString)
+        if "channel"    not in jsonObject: "Invalid JSON MIDI Message, missing 'channel': %s"  % json.dumps(jsonString)
+        if "controller" not in jsonObject: "Invalid JSON MIDI Message, missing 'controller': %s"      % json.dumps(jsonString)
+        if "value"      not in jsonObject: "Invalid JSON MIDI Message, missing 'velocity': %s" % json.dumps(jsonString)
+        
+        return ControlChange(jsonObject["channel"], jsonObject["controller"], jsonObject["value"])
+    
+    #-------------------------------------------------------------------
     def __init__(self, channel, controller, value):
         """Create a new instance of this class with the given channel, controller, and value."""
         
         MIDIMessage.__init__(self, channel, 0xB0, (controller,value))
+        self.controller = controller
+        self.value      = value
+
+    #-------------------------------------------------------------------
+    def toJSON(self):
+        """Return a JSON representation of this object"""
+        result = { "ControlChange" : {
+            "channel":    self.channel,
+            "controller": self.controller,
+            "value":      self.value,
+            }
+        }
+        return json.dumps(result)
 

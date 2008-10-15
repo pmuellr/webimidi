@@ -62,6 +62,7 @@ class Client(object):
     def __init__(self, clientName):
         """Create a new instance of this class with the given clientName"""
         
+        self.clientName    = clientName
         self.clientNameRef = CFStringCreateWithCString(cStr=clientName)
 
         self.client = MIDIClientRef()
@@ -77,6 +78,9 @@ class Client(object):
         self.client = None
         return status
 
+    #-------------------------------------------------------------------
+    def name(self): return self.clientName
+
 #-------------------------------------------------------------------
 class Source(object):
     """Models a MIDI source that you send messages to, that some other program reads."""
@@ -85,7 +89,8 @@ class Source(object):
     def __init__(self, client, sourceName):
         """Create a new instance of this class given the client and name of the MIDI source"""
         
-        self.client = client
+        self.client        = client
+        self.sourceName    = sourceName
         self.sourceNameRef = CFStringCreateWithCString(cStr=sourceName)
 
         self.src = MIDIEndpointRef()
@@ -100,6 +105,9 @@ class Source(object):
         status = MIDIEndpointDispose(self.src)
         self.src = None
         return status
+
+    #-------------------------------------------------------------------
+    def name(self): return self.sourceName
 
     #-------------------------------------------------------------------
     def send(self, messages):
@@ -118,7 +126,7 @@ class Source(object):
     def sendMessage(self, message):
         """Send a single MIDIMessage object to the MIDI device"""
         
-        print "sendMessage(%s)" % message.toJSON()
+        # print "sendMessage(%s)" % message.toJSON()
         
         midiPacketList = MIDIPacketList()
         midiPacketPtr  = MIDIPacketListInit(byref(midiPacketList))
@@ -200,7 +208,12 @@ class NoteOn(MIDIMessage):
     def __init__(self, channel, key, velocity):
         """Create a new instance of this class with the given channel, key, and velocity."""
         
+        if (channel  < 0 or channel  > 15):  raise MwMIDIException, "channel value out of range"
+        if (key      < 0 or key      > 127): raise MwMIDIException, "key value out of range"
+        if (velocity < 0 or velocity > 127): raise MwMIDIException, "velocity value out of range"
+        
         MIDIMessage.__init__(self, channel, 0x80, (key,velocity))
+        
         self.key      = key
         self.velocity = velocity
         
@@ -234,6 +247,11 @@ class NoteOff(MIDIMessage):
     #-------------------------------------------------------------------
     def __init__(self, channel, key, velocity):
         """Create a new instance of this class with the given channel, key, and velocity."""
+        
+        if (channel  < 0 or channel  > 15):  raise MwMIDIException, "channel value out of range"
+        if (key      < 0 or key      > 127): raise MwMIDIException, "key value out of range"
+        if (velocity < 0 or velocity > 127): raise MwMIDIException, "velocity value out of range"
+        
         MIDIMessage.__init__(self, channel, 0x90, (key,velocity))
         self.key      = key
         self.velocity = velocity
@@ -268,6 +286,10 @@ class ControlChange(MIDIMessage):
     #-------------------------------------------------------------------
     def __init__(self, channel, controller, value):
         """Create a new instance of this class with the given channel, controller, and value."""
+        
+        if (channel    < 0 or channel    > 15):  raise MwMIDIException, "channel value out of range"
+        if (controller < 0 or controller > 127): raise MwMIDIException, "controller value out of range"
+        if (value      < 0 or value      > 127): raise MwMIDIException, "value value out of range"
         
         MIDIMessage.__init__(self, channel, 0xB0, (controller,value))
         self.controller = controller

@@ -48,7 +48,6 @@ class TestJSON(unittest.TestCase):
     def test_NoteOff(self):
         message1 = mwMIDI.NoteOff(15, 0, 63)
         json     = message1.toJSON()
-        print json
         message2 = mwMIDI.MIDIMessage.fromJSON(json)
         
         self.assert_(isinstance(message2, mwMIDI.NoteOff))
@@ -59,7 +58,6 @@ class TestJSON(unittest.TestCase):
     def test_ControlChange(self):
         message1 = mwMIDI.ControlChange(7, 127, 0)
         json     = message1.toJSON()
-        print json
         message2 = mwMIDI.MIDIMessage.fromJSON(json)
         
         self.assert_(isinstance(message2, mwMIDI.ControlChange))

@@ -41,8 +41,11 @@ __all__ = [
     "NoteOn", "NoteOff", "ControlChange"
 ]
 
+import time
 from ctypes import *
+
 from mwCoreMIDI import *
+
 import simplejson as json
 
 #-------------------------------------------------------------------
@@ -62,14 +65,14 @@ class Client(object):
     def __init__(self, clientName):
         """Create a new instance of this class with the given clientName"""
         
-        self.clientName    = clientName
+        self.name          = clientName
         self.clientNameRef = CFStringCreateWithCString(cStr=clientName)
 
         self.client = MIDIClientRef()
         status = MIDIClientCreate(name=self.clientNameRef, outClient=byref(self.client))
         
         if 0 != status:
-            raise MwMIDIException, "error creating client: %d" % status
+            raise MwMIDIException, "error creating client '%s': %d" % (clientName, status)
     
     #-------------------------------------------------------------------
     def destroy(self):
@@ -77,9 +80,6 @@ class Client(object):
         status = MIDIClientDestroy(self.client)
         self.client = None
         return status
-
-    #-------------------------------------------------------------------
-    def name(self): return self.clientName
 
 #-------------------------------------------------------------------
 class Source(object):
@@ -90,14 +90,14 @@ class Source(object):
         """Create a new instance of this class given the client and name of the MIDI source"""
         
         self.client        = client
-        self.sourceName    = sourceName
+        self.name          = sourceName
         self.sourceNameRef = CFStringCreateWithCString(cStr=sourceName)
 
         self.src = MIDIEndpointRef()
         status = MIDISourceCreate(client=self.client.client, name=self.sourceNameRef, outSrc=byref(self.src))
         
         if 0 != status:
-            raise MwMIDIException, "error creating source: %d" % status
+            raise MwMIDIException, "error creating source '%s': %d" % (sourceName, status)
         
     #-------------------------------------------------------------------
     def destroy(self):
@@ -105,9 +105,6 @@ class Source(object):
         status = MIDIEndpointDispose(self.src)
         self.src = None
         return status
-
-    #-------------------------------------------------------------------
-    def name(self): return self.sourceName
 
     #-------------------------------------------------------------------
     def send(self, messages):
@@ -132,7 +129,7 @@ class Source(object):
         midiPacketPtr  = MIDIPacketListInit(byref(midiPacketList))
         midiPacket     = midiPacketPtr.contents
 
-        midiPacket.timestamp = 0
+        midiPacket.timestamp = int(time.time())
         midiPacket.length    = 1 + len(message.data)
         midiPacket.data[0]   = message.status + message.channel
         
@@ -212,7 +209,7 @@ class NoteOn(MIDIMessage):
         if (key      < 0 or key      > 127): raise MwMIDIException, "key value out of range"
         if (velocity < 0 or velocity > 127): raise MwMIDIException, "velocity value out of range"
         
-        MIDIMessage.__init__(self, channel, 0x80, (key,velocity))
+        MIDIMessage.__init__(self, channel, 0x90, (key,velocity))
         
         self.key      = key
         self.velocity = velocity
@@ -252,7 +249,7 @@ class NoteOff(MIDIMessage):
         if (key      < 0 or key      > 127): raise MwMIDIException, "key value out of range"
         if (velocity < 0 or velocity > 127): raise MwMIDIException, "velocity value out of range"
         
-        MIDIMessage.__init__(self, channel, 0x90, (key,velocity))
+        MIDIMessage.__init__(self, channel, 0x80, (key,velocity))
         self.key      = key
         self.velocity = velocity
 

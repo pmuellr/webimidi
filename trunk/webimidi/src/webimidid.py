@@ -138,7 +138,7 @@ def handler_device_io(environ, start_response, matches):
     if not content_type:
         return handler_bad_status(environ, start_response, 406, "Not Acceptable")
     
-    if not re.match(r".*/json$", content_type):
+    if not re.match(r".*/json.*$", content_type):
         return handler_bad_status(environ, start_response, 415, "Unsupported Media Type")
               
     input = environ["wsgi.input"]                        

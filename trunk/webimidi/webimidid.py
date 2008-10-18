@@ -45,7 +45,7 @@ import simplejson as json
 import mwMIDI
 
 __author__  = "Patrick Mueller <pmuellr@yahoo.com>"
-__date__    = "2008-10-14"
+__date__    = "2008-10-18"
 __version__ = "0.1"
 
 program = os.path.splitext(os.path.basename(sys.argv[0]))[0]

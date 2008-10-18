@@ -26,11 +26,14 @@
 # 
 #-------------------------------------------------------------------
 
+import os
+import sys
+
+lib_path = os.path.join(os.path.dirname(sys.argv[0]), "../lib")
+sys.path.insert(0, lib_path)
+
 from ctypes import *
 from mwCoreMIDI import *
-
-import sys
-import os
 
 #-------------------------------------------------------------------
 # get the program name

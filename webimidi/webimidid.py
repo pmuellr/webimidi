@@ -52,11 +52,15 @@ program = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 #-------------------------------------------------------------------
 def help():
-    print "%s - %s" % (program, __version__)
+    print "%s - webimidi server" % program 
+    print "   version: %s" % __version__
+    print "   date:    %s" % __date__
+    print "   author:  %s" % __author__
+    print
     print "usage: %s port device-dir" % program
     print ""
-    print "port:       port to run the HTTP server should be run on"
-    print "device-dir: directory containing the devices to create"
+    print "   port:       port to run the HTTP server should be run on"
+    print "   device-dir: directory containing the devices to create"
     
     sys.exit()
 
@@ -66,17 +70,25 @@ class Context:
 
 #-------------------------------------------------------------------
 def handler_root(environ, start_response, matches):
+    update_devices(context)
+    
     status           = '200 OK'
     response_headers = [('Content-type','text/html')]
     start_response(status, response_headers)
 
     output = StringIO.StringIO()
     output.write("<h1>webimidi: home</h1>\n")
-    output.write("<h2><a href='devices.html'>devices</a></h2>")
+    
+    output.write("<h2>devices</h2>")
+    output.write("<ul>")
+    for device in context.devices.keys():
+        output.write("<li><h3><a href='devices/%s/'>%s</a></h3></li>" % (device, device))
+    output.write("</ul>")
+    
 #   output.write("<h2><a href='environ.html'>environ</a></h2>")
 
     output.write("<p>&nbsp;</p><hr>\n")
-    output.write("<p><a href='http://code.google.com/p/webimidi/'>more info on webimidi</a></p>\n")
+    output.write("<p><a href='http://code.google.com/p/webimidi/'>webimidi @ Google Code</a></p>\n")
     
     result = output.getvalue()
     output.close()
@@ -84,6 +96,8 @@ def handler_root(environ, start_response, matches):
         
 #-------------------------------------------------------------------
 def handler_devices_html(environ, start_response, matches):
+    update_devices(context)
+    
     status           = '200 OK'
     response_headers = [('Content-type','text/html')]
     start_response(status, response_headers)
@@ -92,8 +106,6 @@ def handler_devices_html(environ, start_response, matches):
     output.write("<h1>webimidi: devices</h1>\n")
     output.write("<p>")
     output.write("<i><a href='/'>go home</a></i>")
-    output.write(" - ")
-    output.write("<i><a href='devices.update'>update device list</a></i>")
     output.write("</p>\n")
     
     for device in context.devices.keys():
@@ -105,6 +117,8 @@ def handler_devices_html(environ, start_response, matches):
         
 #-------------------------------------------------------------------
 def handler_devices_json(environ, start_response, matches):
+    update_devices(context)
+    
     status           = '200 OK'
     response_headers = [('Content-type','text/json')]
     start_response(status, response_headers)
@@ -118,23 +132,6 @@ def handler_devices_json(environ, start_response, matches):
     
     return [result]
 
-#-------------------------------------------------------------------
-def handler_devices_update(environ, start_response, matches):
-    update_devices(context)
-
-    status           = '200 OK'
-    response_headers = [('Content-type','text/html')]
-    start_response(status, response_headers)
-
-    output = StringIO.StringIO()
-    output.write('<meta http-equiv="refresh" content="0;url=devices.html">')
-    output.write('<a href="devices.html">back to devices</a>')
-    
-    result = output.getvalue()
-    output.close()
-    
-    return [result]
-         
 #-------------------------------------------------------------------
 def handler_device_root(environ, start_response, matches):
     device = context.devices.get(matches["device"], None)
@@ -243,7 +240,6 @@ def webimidi_app(environ, start_response):
         (r"^/$",                                        handler_root),
         (r"^/devices\.html$",                           handler_devices_html),
         (r"^/devices\.json$",                           handler_devices_json),
-        (r"^/devices\.update$",                         handler_devices_update),
         (r"^/devices/(?P<device>[^/]+)/$",              handler_device_root),
         (r"^/devices/(?P<device>[^/]+)/io$",            handler_device_io),
         (r"^/devices/(?P<device>[^/]+)/(?P<file>.+)$",  handler_device_file),

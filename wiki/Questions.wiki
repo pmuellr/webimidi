@@ -1,5 +1,1 @@
-#summary Ask a question by posting a comment here
-
-= Introduction =
-
 To ask a question about this project, add a comment to this page.

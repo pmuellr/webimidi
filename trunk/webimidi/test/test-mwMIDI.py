@@ -26,9 +26,13 @@
 #
 #-------------------------------------------------------------------
 
-import mwMIDI
 import os
 import sys
+
+lib_path = os.path.join(os.path.dirname(sys.argv[0]), "../lib")
+sys.path.insert(0, lib_path)
+
+import mwMIDI
 import time
 import random
 

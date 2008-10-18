@@ -4,7 +4,7 @@ function key(left, name, note, clazz) {
     html +="<div class='" + clazz + "' "
     html +=     "style='left:" + left + ";' " 
     html +=     "onmousedown='midi_key_down(" + note + ")' " 
-    html +=     "onmousedown='midi_key_up(" + note + ")' " 
+    html +=     "onmouseup='midi_key_up(" + note + ")' " 
     html +=     "></div>"
 
     return html

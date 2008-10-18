@@ -1,0 +1,181 @@
+<html>
+
+<!-- ====================================================== -->
+<head>
+<title id="head_title">webimidi</title>
+<style type="text/css">
+
+/*-----------------------------------------------------------------*/
+pre {
+    font-weight:        bold;
+    overflow:           auto;
+    border-width:       0;
+    border-style:       solid;
+    padding-top:        0.4em;
+    padding-bottom:     0.4em;
+    padding-left:       1.4em;
+    padding-right:      1.4em;
+    margin-left:        1.4em;
+    margin-right:       1.4em;
+}
+
+/*-----------------------------------------------------------------*/
+h1,h2,h3,h4,h5 {
+    padding-left:       0.3em;
+    padding-right:      0.3em;
+    padding-top:        0.3em;
+    padding-bottom:     0.3em;
+    border-width:       0;
+    background:         #C0C0FF;
+}
+
+</style>
+<script type="text/javascript">
+function body_onload() {
+    var head_title = document.getElementById("head_title").innerHTML
+    document.getElementById("body_title").innerHTML = head_title
+}
+</script>
+</head>
+
+<!-- ====================================================== -->
+<body onload="body_onload()">
+
+<!-- ====================================================== -->
+<h1 id="body_title">title should have been filled in via JavaScript</h1>
+<p>It's an HTTP server <b>AND</b> a herd of MIDI devices!</p>
+<p>webimidi is a Python program which runs as a web server,
+and creates virtual MIDI devices which can be accessed via
+HTTP.  This allows you to create virtual MIDI controllers
+as web applications, using nothing but HTML, CSS, and JavaScript.
+</p>
+
+<p>The real intention of this program is to be able to access
+these virual MIDI controllers via a portable device such
+as an iPhone, Nokia N800, Nintendo DS, or other HTTP 
+capable device.</p>
+
+<!-- ====================================================== -->
+<h2>Caveats</h2>
+
+<ul>
+<li><p>The server currently only runs on Mac OS X 10.5 or later.</p></li>
+<li><p>MIDI devices can only be written to, they cannot be read.</p></li>
+<li><p>Currently only NoteOn, NoteOff, and ControlChange messages can be written.</p></li>
+</ul>
+
+<!-- ====================================================== -->
+<h2>Installation and Usage</h2>
+
+<ol>
+<li><p>Download a webimidi archive from 
+<a href="http://code.google.com/p/webimidi/">http://code.google.com/p/webimidi/</a>
+and unpack using the appropriate unpacking tool.</p></li>
+
+<li><p>'cd' into the webimidi directory created.</p></li>
+
+<li><p>Invoke webimidi with the command
+<pre>
+webimidi 8088 sample
+</pre>
+The first parameter is the tcp/ip port which the HTTP server will be run at.
+the second parameter is the name of a directory that contains the devices
+to create, one subdirectory per device.  The devices created will have
+the name of the subdirectory.
+</p></li>
+
+<li><p>webimidi should be running with one device from the <tt>sample</tt>
+directory, <b>simple-keys</b></p></li>
+
+<li><p>Open your MIDI-enabled application</p></li>
+
+<li><p>The MIDI device <tt>simple-keys</tt> will be available
+which will generate note and control information.  Assign
+as appropriate.</p></li>
+
+<li><p>If you are accessing the server from a difference machine / device,
+make sure you have the firewall off in System Preferences / Security.</p></li>
+
+<li><p>Browse to the location
+<a href="http://localhost:8088/">http://localhost:8088/</a>
+</p></li>
+
+<li><p>Click on the 
+<a href="http://localhost:8088/devices/simple-keys/">simple-keys</a> 
+link</p></li>
+
+<li><p>Press keys. Have fun.</p></li>
+
+<li><p>Kill the server by pressing Control-C at the command-line.</p></li>
+
+</ol>
+
+<!-- ====================================================== -->
+<h2>Creating New Devices</h2>
+
+<ol>
+<li><p>Learn HTML.</p></li>  
+<li><p>Learn CSS.</p></li>
+<li><p>Learn JavaScript.</p></li>
+<li><p>Learn jQuery.</p></li>
+<li><p>Study the sample device simple-keys.</p></li>
+<li><p>Create a new directory next to the simple-keys directory (the
+directories will have the same parent directory).</p></li>
+<li><p>Using your new HTML/CSS/JavaScript/jQuery skillz, create
+your new device rooted in an index.html file.</p></li>
+<li><p>The file <tt>midi.js</tt> can be reused as is,
+or extended for nefarious purposes.</p></li>
+</ol>
+
+<!-- ====================================================== -->
+<h2>API</h2>
+
+<p>Under review.  Pretty easy to figure out by looking at
+the source code.</p>
+
+<!-- ====================================================== -->
+<h2>Author</h2>
+
+<p><a href="http://muellerware.org/">Patrick Mueller</a></p>
+
+<!-- ====================================================== -->
+<h2>History</h2>
+
+<p><b>2008/10/18 - version 0.1</b></p>
+<ul>
+<li>Initial version</li>
+</ul>
+
+<!-- ====================================================== -->
+<h2>License</h2>
+
+<p><b><tt>webimidi/lib/simplejson</tt></b><br/>
+See 
+<a href="http://code.google.com/p/simplejson/">http://code.google.com/p/simplejson/</a>.
+Currently licensed using the 
+<a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>.
+</p>
+
+<p><b><tt>webimidi/sample/simple-keys/jquery*.js</tt></b><br/>
+See 
+<a href="http://jquery.com/">http://jquery.com/</a>.
+Currently licensed using the 
+<a href="http://jquery.com/dev/svn/trunk/jquery/MIT-LICENSE.txt">MIT license</a>
+and/or/something the
+<a href="http://jquery.com/dev/svn/trunk/jquery/GPL-LICENSE.txt">GPL license</a>.
+</p>
+
+<p><b><tt>webimidi/sample/json2.js</tt></b><br/>
+See
+<a href="http://www.JSON.org/json2.js">http://www.JSON.org/json2.js</a>.
+Currently in the public domain.
+</p>
+
+<p><b><tt>Everything else</tt></b><br/>
+Currently licensed using the 
+<a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>.
+</p>
+
+</body>
+
+</html>

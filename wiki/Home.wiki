@@ -1,5 +1,0 @@
-= What is webimidi? =
-
-webimidi is a python library which provides the ability to create new MIDI sources that you can send messages to for other applications to consume, and a web server interface for that library.  This allows you to create MIDI controllers which run in a web browser.
-
-To ask a question about this project, post a comment to the [Questions] page.

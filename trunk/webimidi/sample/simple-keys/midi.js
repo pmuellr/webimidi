@@ -24,7 +24,7 @@ function midi_send_message(message) {
 }
 
 //---------------------------------------------------------
-function midi_key_down(note) {
+function midi_note_on(note) {
     var message = {
         NoteOn: {
             channel:  0,
@@ -37,7 +37,7 @@ function midi_key_down(note) {
 }
 
 //---------------------------------------------------------
-function midi_key_up(note) {
+function midi_note_off(note) {
     var message = {
         NoteOff: {
             channel:  0,
@@ -50,7 +50,7 @@ function midi_key_up(note) {
 }
 
 //---------------------------------------------------------
-function midi_control_change(note) {
+function midi_control_change(controller, value) {
     var message = {
         ControlChange: {
             channel:    0,

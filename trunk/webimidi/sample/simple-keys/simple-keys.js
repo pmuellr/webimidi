@@ -1,10 +1,12 @@
 //---------------------------------------------------------
 function key(left, name, note, clazz) {
+    var clazz_string = '"' + clazz + '"'
+     
 	var html = ""
-    html +="<div class='" + clazz + "' "
+    html +="<div id='note_" + note + "' class='" + clazz + "' "
     html +=     "style='left:" + left + ";' " 
-    html +=     "onmousedown='midi_key_down(" + note + ")' " 
-    html +=     "onmouseup='midi_key_up(" + note + ")' " 
+    html +=     "onmousedown='key_down(" + note + ", " + clazz_string +  ")' " 
+    html +=     "onmouseup='key_up("     + note + ", " + clazz_string +  ")' "
     html +=     "></div>"
 
     return html
@@ -15,6 +17,23 @@ function key_black(left, name, note) { return key(left, name, note, "key_black")
 
 //---------------------------------------------------------
 function key_white(left, name, note) { return key(left, name, note, "key_white") }
+
+//---------------------------------------------------------
+function key_down(note, clazz) {
+    midi_note_on(note)
+    $("#note_" + note).css("background-color", "#777")
+}
+
+//---------------------------------------------------------
+function key_up(note, clazz) {
+    midi_note_off(note)
+    
+    var color = (clazz == "key_black") ? "#000" : "#FFF" 
+    $("#note_" + note).css("background-color", color)
+}
+
+//---------------------------------------------------------
+
 
 //---------------------------------------------------------
 function build_keys() {
